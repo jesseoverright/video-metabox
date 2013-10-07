@@ -1,15 +1,15 @@
 <?php
 /**
- * Plugin Name: video-metabox
- * Plugin URI: http://URI_Of_Page_Describing_Plugin_and_Updates
+ * Plugin Name: Video Metabox
+ * Plugin URI: http://about.me/joverright
  * Description: Adds a video metabox plugin to your site.
- * Version: 0.1
- * Author: Jesse
- * Author URI: http://URI_Of_The_Plugin_Author
+ * Version: 0.1 beta
+ * Author: Jesse Overright
+ * Author URI: http://about.me/joverright
  * License: GPL2
  */
 
-/*  Copyright 2013  Jesse Overright  (email : PLUGIN AUTHOR EMAIL)
+/*  Copyright 2013  Jesse Overright  (email : jesseoverright@gmail.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License, version 2, as 
