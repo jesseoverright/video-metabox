@@ -40,9 +40,9 @@ function add_video_metabox_css() {
 }    
 
 function video_metabox () {
-     global $post;
+    global $post;
 
-    // Verify
+    // Verify data hasn't been tampered with
     echo'<input type="hidden" name="video_noncename" id="video_noncename" value="'.wp_create_nonce( plugin_basename(__FILE__) ).'" />';
     
     $video_id = get_post_meta($post->ID, 'video_id', true);
@@ -66,14 +66,10 @@ function video_metabox () {
     <?php
 }
     
-function save_video_metabox( $post_id ) {
-    global $post;
-    
-    // Verify
-    if (isset($_POST['video_noncename'])) {
-        if ( !wp_verify_nonce( $_POST["video_noncename"], plugin_basename(__FILE__) ))
-            return $post_id;
-    }
+function save_video_metabox( $post_id ) {    
+    // Verify data hasn't been tampered with
+    if ( !wp_verify_nonce( $_POST["video_noncename"], plugin_basename(__FILE__) ))
+        return $post_id;
     
     // New, Update, and Delete
     $data = $_POST['video_id'];
@@ -101,7 +97,6 @@ function save_video_metabox( $post_id ) {
     $video_type = get_post_meta($post_id, 'video_type', true);
             
     // depending on the video type, get image location
-    ini_set("allow_url_fopen",true);
     $video_thumb_url = get_video_thumb($video_id, $video_type);
 
     // if no video, remove thumbnail
@@ -126,6 +121,9 @@ function get_video_thumb($video_id, $video_type) {
         case 'vimeo':
             //forming API url
             $url = "http://vimeo.com/api/v2/video/{$video_id}.json";
+            // enable curl
+            ini_set("allow_url_fopen",true);
+
             //curl request
             $curl = curl_init();
             curl_setopt($curl, CURLOPT_URL, $url);
