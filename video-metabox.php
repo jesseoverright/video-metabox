@@ -31,14 +31,15 @@ add_action('save_post', 'save_video_metabox');
 add_action('init', 'add_video_metabox_css');
 
 function add_video_metabox () {
-     add_meta_box('video-meta', 'Video', 'video_meta_box', 'post', 'normal', 'high');
+     add_meta_box( 'video-metabox', 'Video', 'video_metabox', 'post', 'normal', 'high');
+     wp_enqueue_style( 'video-metabox-admin-css', plugins_url( 'video-metabox-admin.css', __FILE__) );
 }
 
 function add_video_metabox_css() {
-    wp_enqueue_style( 'video-metabox-css', plugins_url('video-metabox.css', __FILE__) );
+    wp_enqueue_style( 'video-metabox-css', plugins_url( 'video-metabox.css', __FILE__) );
 }    
 
-function video_meta_box () {
+function video_metabox () {
      global $post;
 
     // Verify
@@ -50,16 +51,16 @@ function video_meta_box () {
     
     if ($video_thumb_url != "")
     {
-        echo '<img src="'.$video_thumb_url.'" style="margin: 5px 0 10px;" /><br />';    
+        echo "<img src=\"{$video_thumb_url}\" /><br />";    
     }
     ?>
-    <label for="video_type" style="margin-right: 5px;">Video Type:</label>
+    <label>Video Type:
     <select name="video_type">
         <option value="youtube" <?php if ($video_type == "youtube") echo ' selected';?>>YouTube</option>
         <option value="vimeo" <?php if ($video_type == "vimeo") echo ' selected';?>>Vimeo</option>
-    </select>
-    <label for="video_id" style="margin-right: 18px;margin-left:8px;">Video ID:</label>
-    <input type="text" name="video_id" value="<?php echo $video_id; ?>" size="20" /><br />
+    </select></label>
+    <label>Video ID:
+    <input type="text" name="video_id" value="<?php echo $video_id; ?>" size="20" /></label>
     <p>Example Video IDs: www.youtube.com/watch?v=<b>hfbwoCqLgJo</b>, http://vimeo.com/<b>29491315</b></p>
 
     <?php
