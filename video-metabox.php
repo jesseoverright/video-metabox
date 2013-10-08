@@ -1,9 +1,9 @@
 <?php
 /**
  * Plugin Name: Video Metabox
- * Plugin URI: http://about.me/joverright
+ * Plugin URI: https://github.com/jesseoverright/video-metabox
  * Description: Adds a video metabox plugin to your site.
- * Version: 0.1 beta
+ * Version: 0.3 beta
  * Author: Jesse Overright
  * Author URI: http://about.me/joverright
  * License: GPL2
