@@ -25,142 +25,153 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-add_action('admin_init', 'add_video_metabox');
-add_action('save_post', 'save_video_metabox');
+if ( !class_exists('Video_Metabox') ) :
 
-add_action('init', 'add_video_metabox_css');
+class Video_Metabox {
+    public function __construct() {
+        // add actions for creating and saving video metabox
+        add_action('admin_init', array($this,'add_video_metabox') );
+        add_action('save_post', array($this, 'save_video_metabox') );
 
-function add_video_metabox () {
-     add_meta_box( 'video-metabox', 'Video', 'video_metabox', 'post', 'normal', 'high');
-     wp_enqueue_style( 'video-metabox-css', plugins_url( 'video-metabox.css', __FILE__) );
-}
+        // enqueue video metabox css
+        add_action('init', array($this, 'add_video_metabox_css') );
 
-function add_video_metabox_css() {
-    wp_enqueue_style( 'video-metabox-css', plugins_url( 'video-metabox.css', __FILE__) );
-}    
-
-function video_metabox () {
-    global $post;
-
-    // Verify data hasn't been tampered with
-    echo'<input type="hidden" name="video_noncename" id="video_noncename" value="'.wp_create_nonce( plugin_basename(__FILE__) ).'" />';
-    
-    $video_url = get_post_meta($post->ID, 'video_url', true);
-    $video_id = get_post_meta($post->ID, 'video_id', true);
-    $video_type = get_post_meta($post->ID, 'video_type', true);
-
-    if ($video_id != '' && $video_type != '') {
-        render_video($video_id, $video_type);
+        // hook into the_content and display the video when applicable.
+        add_filter( 'the_content' , array($this, 'video_metabox_content_filter') );
     }
-    ?>
-    <label>Video URL:
-    <input type="text" name="video_url" value="<?php echo $video_url; ?>" size="40" /></label>
-    <?php
-}
-    
-function save_video_metabox( $post_id ) {    
-    // Verify data hasn't been tampered with
-    if ( !wp_verify_nonce( $_POST["video_noncename"], plugin_basename(__FILE__) ))
-        return $post_id;
 
-    // save url
-    $data = $_POST['video_url'];
+    public function add_video_metabox () {
+        add_meta_box( 'video-metabox', 'Video', array($this,'video_metabox'), 'post', 'normal', 'high');
+        wp_enqueue_style( 'video-metabox-css', plugins_url( 'video-metabox.css', __FILE__) );
+    }
+
+    public function add_video_metabox_css() {
+        wp_enqueue_style( 'video-metabox-css', plugins_url( 'video-metabox.css', __FILE__) );
+    }
+
+    public function video_metabox_content_filter( $content ) {
+        global $post;
+        if (get_post_meta($post->ID,'video_id',true) != '') {
+            $content = $this->render_video(get_post_meta($post->ID,'video_id',true),get_post_meta($post->ID,'video_type',true),640) . $content;
+        }
+        return $content;
+    }
+
+    public function video_metabox () {
+        global $post;
+
+        // Verify data hasn't been tampered with
+        echo'<input type="hidden" name="video_noncename" id="video_noncename" value="'.wp_create_nonce( plugin_basename(__FILE__) ).'" />';
         
-    if(get_post_meta($post_id, 'video_url') == "")
-    add_post_meta($post_id, 'video_url', $data, true);
-    elseif($data != get_post_meta($post_id, 'video_url', true))
-    update_post_meta($post_id, 'video_url', $data);
-    elseif($data == "")
-    delete_post_meta($post_id, 'video_url', get_post_meta($post_id, 'video_url', true));
+        $video_url = get_post_meta($post->ID, 'video_url', true);
+        $video_id = get_post_meta($post->ID, 'video_id', true);
+        $video_type = get_post_meta($post->ID, 'video_type', true);
 
-    // srape url for video id & type
-    $video_details = scrape_url($data);
-    
-    // New, Update, and Delete
-    $data = $video_details['video_id'];
+        if ($video_id != '' && $video_type != '') {
+            $this->render_video($video_id, $video_type);
+        }
+        ?>
+        <label>Video URL:
+        <input type="text" name="video_url" value="<?php echo $video_url; ?>" size="40" /></label>
+        <?php
+    }
+
+    public function save_video_metabox( $post_id ) {    
+        // Verify data hasn't been tampered with
+        if ( !wp_verify_nonce( $_POST["video_noncename"], plugin_basename(__FILE__) ))
+            return $post_id;
+
+        // save url
+        $data = $_POST['video_url'];
+            
+        if(get_post_meta($post_id, 'video_url') == "")
+        add_post_meta($post_id, 'video_url', $data, true);
+        elseif($data != get_post_meta($post_id, 'video_url', true))
+        update_post_meta($post_id, 'video_url', $data);
+        elseif($data == "")
+        delete_post_meta($post_id, 'video_url', get_post_meta($post_id, 'video_url', true));
+
+        // srape url for video id & type
+        $video_details = $this->scrape_url($data);
         
-    if(get_post_meta($post_id, 'video_id') == "")
-    add_post_meta($post_id, 'video_id', $data, true);
-    elseif($data != get_post_meta($post_id, 'video_id', true))
-    update_post_meta($post_id, 'video_id', $data);
-    elseif($data == "")
-    delete_post_meta($post_id, 'video_id', get_post_meta($post_id, 'video_id', true));
-    
-    $data = $video_details['video_type'];
+        // New, Update, and Delete
+        $data = $video_details['video_id'];
+            
+        if(get_post_meta($post_id, 'video_id') == "")
+        add_post_meta($post_id, 'video_id', $data, true);
+        elseif($data != get_post_meta($post_id, 'video_id', true))
+        update_post_meta($post_id, 'video_id', $data);
+        elseif($data == "")
+        delete_post_meta($post_id, 'video_id', get_post_meta($post_id, 'video_id', true));
+        
+        $data = $video_details['video_type'];
 
-    if(get_post_meta($post_id, 'video_type') == "")
-    add_post_meta($post_id, 'video_type', $data, true);
-    elseif($data != get_post_meta($post_id, 'video_type', true))
-    update_post_meta($post_id, 'video_type', $data);
-    elseif($data == "")
-    delete_post_meta($post_id, 'video_type', get_post_meta($post_id, 'video_type', true));  
-}
-
-function scrape_url($video_url) {
-
-    if ( filter_var($video_url, FILTER_VALIDATE_URL) === FALSE )
-        return false;
-
-    # get url query string and host
-    $parsed_url = parse_url( $video_url );
-
-    switch ($parsed_url['host']) {
-        case "vimeo.com":
-        case "www.vimeo.com":
-            $video_details = array (
-                'video_id' => ltrim($parsed_url['path'],'/'),
-                'video_type' => 'vimeo',
-            );
-        break;
-        case "youtu.be":
-            $video_details = array (
-                'video_id' => ltrim($parsed_url['path'],'/'),
-                'video_type' => 'youtube',
-            );
-        break;
-        case "youtube.com":
-        case "www.youtube.com":
-            parse_str( $parsed_url['query'], $query_vars);
-
-            $video_details = array (
-                'video_id' => $query_vars['v'],
-                'video_type' => 'youtube',
-            );
-        break;
-    }    
-
-    return $video_details;
-
-}
-
-function render_video($video_id, $video_type, $return_rendered_video = false) {
-    
-    switch ($video_type) {
-        case 'vimeo':
-            $embed = "<div class=\"video-metabox\"><iframe src=\"http://player.vimeo.com/video/{$video_id}?title=0&byline=0&portrait=0&color=ffffff\" frameborder=\"0\" webkitAllowFullScreen allowFullScreen></iframe></div>";
-            break;
-        case 'youtube':
-            $embed = "<div class=\"video-metabox\"><iframe src=\"http://www.youtube.com/embed/{$video_id}/?modestbranding=1&rel=0&showinfo=0\" frameborder=\"0\" allowfullscreen></iframe></div>";
-            break;
-        default:
-            $embed = '';
-            break;  
-    }
-    if ($video_id == '') return; // validate video, if no video id has been sent, don't render video
-    if ($return_rendered_video)
-        return $embed;
-    else
-        echo $embed;
-}
-
-// hook into the_content and display the video when applicable.
-add_filter( 'the_content' , 'video_metabox_content_filter');
-
-function video_metabox_content_filter( $content ) {
-    global $post;
-    if (get_post_meta($post->ID,'video_id',true) != '') {
-        $content = render_video(get_post_meta($post->ID,'video_id',true),get_post_meta($post->ID,'video_type',true),640) . $content;
+        if(get_post_meta($post_id, 'video_type') == "")
+        add_post_meta($post_id, 'video_type', $data, true);
+        elseif($data != get_post_meta($post_id, 'video_type', true))
+        update_post_meta($post_id, 'video_type', $data);
+        elseif($data == "")
+        delete_post_meta($post_id, 'video_type', get_post_meta($post_id, 'video_type', true));  
     }
 
-    return $content;
+    protected function scrape_url($video_url) {
+
+        if ( filter_var($video_url, FILTER_VALIDATE_URL) === FALSE )
+            return false;
+
+        # get url query string and host
+        $parsed_url = parse_url( $video_url );
+
+        switch ($parsed_url['host']) {
+            case "vimeo.com":
+            case "www.vimeo.com":
+                $video_details = array (
+                    'video_id' => ltrim($parsed_url['path'],'/'),
+                    'video_type' => 'vimeo',
+                );
+            break;
+            case "youtu.be":
+                $video_details = array (
+                    'video_id' => ltrim($parsed_url['path'],'/'),
+                    'video_type' => 'youtube',
+                );
+            break;
+            case "youtube.com":
+            case "www.youtube.com":
+                parse_str( $parsed_url['query'], $query_vars);
+
+                $video_details = array (
+                    'video_id' => $query_vars['v'],
+                    'video_type' => 'youtube',
+                );
+            break;
+        }    
+
+        return $video_details;
+
+    }
+
+    protected function render_video($video_id, $video_type, $return_rendered_video = false) {
+        
+        switch ($video_type) {
+            case 'vimeo':
+                $embed = "<div class=\"video-metabox\"><iframe src=\"http://player.vimeo.com/video/{$video_id}?title=0&byline=0&portrait=0&color=ffffff\" frameborder=\"0\" webkitAllowFullScreen allowFullScreen></iframe></div>";
+                break;
+            case 'youtube':
+                $embed = "<div class=\"video-metabox\"><iframe src=\"http://www.youtube.com/embed/{$video_id}/?modestbranding=1&rel=0&showinfo=0\" frameborder=\"0\" allowfullscreen></iframe></div>";
+                break;
+            default:
+                $embed = '';
+                break;  
+        }
+        if ($video_id == '') return; // validate video, if no video id has been sent, don't render video
+        if ($return_rendered_video)
+            return $embed;
+        else
+            echo $embed;
+    }
 }
+
+$Video_Metabox = new Video_Metabox();
+
+endif;
