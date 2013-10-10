@@ -45,6 +45,7 @@ function video_metabox () {
     // Verify data hasn't been tampered with
     echo'<input type="hidden" name="video_noncename" id="video_noncename" value="'.wp_create_nonce( plugin_basename(__FILE__) ).'" />';
     
+    $video_url = get_post_meta($post->ID, 'video_url', true);
     $video_id = get_post_meta($post->ID, 'video_id', true);
     $video_type = get_post_meta($post->ID, 'video_type', true);
 
@@ -52,14 +53,8 @@ function video_metabox () {
         render_video($video_id, $video_type);
     }
     ?>
-    <label>Video Type:
-    <select name="video_type">
-        <option value="youtube" <?php if ($video_type == "youtube") echo ' selected';?>>YouTube</option>
-        <option value="vimeo" <?php if ($video_type == "vimeo") echo ' selected';?>>Vimeo</option>
-    </select></label>
-    <label>Video ID:
-    <input type="text" name="video_id" value="<?php echo $video_id; ?>" size="20" /></label>
-    <p>Example Video IDs: www.youtube.com/watch?v=<b>hfbwoCqLgJo</b>, http://vimeo.com/<b>29491315</b></p>
+    <label>Video URL:
+    <input type="text" name="video_url" value="<?php echo $video_url; ?>" size="40" /></label>
     <?php
 }
     
@@ -67,10 +62,22 @@ function save_video_metabox( $post_id ) {
     // Verify data hasn't been tampered with
     if ( !wp_verify_nonce( $_POST["video_noncename"], plugin_basename(__FILE__) ))
         return $post_id;
+
+    // save url
+    $data = $_POST['video_url'];
+        
+    if(get_post_meta($post_id, 'video_url') == "")
+    add_post_meta($post_id, 'video_url', $data, true);
+    elseif($data != get_post_meta($post_id, 'video_url', true))
+    update_post_meta($post_id, 'video_url', $data);
+    elseif($data == "")
+    delete_post_meta($post_id, 'video_url', get_post_meta($post_id, 'video_url', true));
+
+    // srape url for video id & type
+    $video_details = scrape_url($data);
     
     // New, Update, and Delete
-    $data = $_POST['video_id'];
-    $current_video = get_post_meta($post_id, 'video_id',true);
+    $data = $video_details['video_id'];
         
     if(get_post_meta($post_id, 'video_id') == "")
     add_post_meta($post_id, 'video_id', $data, true);
@@ -79,7 +86,7 @@ function save_video_metabox( $post_id ) {
     elseif($data == "")
     delete_post_meta($post_id, 'video_id', get_post_meta($post_id, 'video_id', true));
     
-    $data = $_POST['video_type'];
+    $data = $video_details['video_type'];
 
     if(get_post_meta($post_id, 'video_type') == "")
     add_post_meta($post_id, 'video_type', $data, true);
@@ -87,18 +94,19 @@ function save_video_metabox( $post_id ) {
     update_post_meta($post_id, 'video_type', $data);
     elseif($data == "")
     delete_post_meta($post_id, 'video_type', get_post_meta($post_id, 'video_type', true));  
-    
-    // saving external links to video thumbnails
-    $video_thumb_url = get_post_meta($post_id, 'video_thumb_url', true);
-    $video_id = get_post_meta($post_id, 'video_id', true);
-    $video_type = get_post_meta($post_id, 'video_type', true);
 }
 
 function scrape_url($video_url) {
+    # parse url for video id
     $urlquerystring = parse_url($video_url, PHP_URL_QUERY);
     parse_str($urlquerystring, $vars);
+    
+    $video_details = array (
+        'video_id' => $vars['v'],
+        'video_type' => 'youtube'
+    );
 
-    #$vars['v'] = "youtube id";
+    return $video_details;
 
 }
 
