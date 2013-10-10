@@ -3,7 +3,7 @@
  * Plugin Name: Video Metabox
  * Plugin URI: https://github.com/jesseoverright/video-metabox
  * Description: Adds a video metabox plugin to your site.
- * Version: 1.0
+ * Version: 1.1
  * Author: Jesse Overright
  * Author URI: http://about.me/joverright
  * License: GPL2
@@ -92,6 +92,14 @@ function save_video_metabox( $post_id ) {
     $video_thumb_url = get_post_meta($post_id, 'video_thumb_url', true);
     $video_id = get_post_meta($post_id, 'video_id', true);
     $video_type = get_post_meta($post_id, 'video_type', true);
+}
+
+function scrape_url($video_url) {
+    $urlquerystring = parse_url($video_url, PHP_URL_QUERY);
+    parse_str($urlquerystring, $vars);
+
+    #$vars['v'] = "youtube id";
+
 }
 
 function render_video($video_id, $video_type, $return_rendered_video = false) {
