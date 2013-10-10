@@ -97,14 +97,37 @@ function save_video_metabox( $post_id ) {
 }
 
 function scrape_url($video_url) {
-    # parse url for video id
-    $urlquerystring = parse_url($video_url, PHP_URL_QUERY);
-    parse_str($urlquerystring, $vars);
-    
-    $video_details = array (
-        'video_id' => $vars['v'],
-        'video_type' => 'youtube'
-    );
+
+    if ( filter_var($video_url, FILTER_VALIDATE_URL) === FALSE )
+        return false;
+
+    # get url query string and host
+    $parsed_url = parse_url( $video_url );
+
+    switch ($parsed_url['host']) {
+        case "vimeo.com":
+        case "www.vimeo.com":
+            $video_details = array (
+                'video_id' => ltrim($parsed_url['path'],'/'),
+                'video_type' => 'vimeo',
+            );
+        break;
+        case "youtu.be":
+            $video_details = array (
+                'video_id' => ltrim($parsed_url['path'],'/'),
+                'video_type' => 'youtube',
+            );
+        break;
+        case "youtube.com":
+        case "www.youtube.com":
+            parse_str( $parsed_url['query'], $query_vars);
+
+            $video_details = array (
+                'video_id' => $query_vars['v'],
+                'video_type' => 'youtube',
+            );
+        break;
+    }    
 
     return $video_details;
 
