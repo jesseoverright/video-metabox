@@ -147,8 +147,10 @@ class Video_Metabox {
             break;
             case "video.pbs.org":
             case "video.klru.tv":
+                $url_path = explode('/', rtrim($parsed_url['path'],'/') );
+
                 $video_details = array (
-                    'video_id' => ltrim(rtrim($parsed_url['path'],'/'),'/video/'),
+                    'video_id' => $url_path[count($url_path)-1],
                     'video_type' => 'pbs',
                 );
             break;
