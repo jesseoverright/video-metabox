@@ -145,6 +145,13 @@ class Video_Metabox {
                     'video_type' => 'youtube',
                 );
             break;
+            case "video.pbs.org":
+            case "video.klru.tv":
+                $video_details = array (
+                    'video_id' => ltrim(rtrim($parsed_url['path'],'/'),'/video/'),
+                    'video_type' => 'pbs',
+                );
+            break;
         }    
 
         return $video_details;
@@ -159,6 +166,9 @@ class Video_Metabox {
                 break;
             case 'youtube':
                 $embed = "<div class=\"video-metabox\"><iframe src=\"http://www.youtube.com/embed/{$video_id}/?modestbranding=1&rel=0&showinfo=0\" frameborder=\"0\" allowfullscreen></iframe></div>";
+                break;
+            case 'pbs':
+                $embed = "<div class=\"video-metabox\"><iframe src=\"http://video.pbs.org/viralplayer/{$video_id}\" frameborder=\"0\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" seamless></iframe></div>";
                 break;
             default:
                 $embed = '';
