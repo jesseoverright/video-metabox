@@ -28,6 +28,7 @@
 if ( !class_exists('Video_Metabox') ) :
 
 class Video_Metabox {
+    
     public function __construct() {
         // add actions for creating and saving video metabox
         add_action('admin_init', array($this,'add_video_metabox') );
@@ -72,7 +73,7 @@ class Video_Metabox {
         }
         ?>
         <label>Video URL:
-        <input type="text" name="video_url" value="<?php echo $video_url; ?>" size="40" /></label>
+        <input type="url" name="video_url" value="<?php echo esc_url($video_url); ?>" size="40" /></label>
         <?php
     }
 
@@ -82,7 +83,7 @@ class Video_Metabox {
             return $post_id;
 
         // save url
-        $data = $_POST['video_url'];
+        $data = esc_url_raw( $_POST['video_url']) ;
             
         if(get_post_meta($post_id, 'video_url') == "")
         add_post_meta($post_id, 'video_url', $data, true);
