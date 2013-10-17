@@ -3,7 +3,7 @@
  * Plugin Name: Video Metabox
  * Plugin URI: https://github.com/jesseoverright/video-metabox
  * Description: Adds a video metabox plugin to your site.
- * Version: 1.1
+ * Version: 1.1.1
  * Author: Jesse Overright
  * Author URI: http://about.me/joverright
  * License: GPL2
@@ -61,13 +61,15 @@ class Video_Metabox {
     public function video_metabox () {
         global $post;
 
-        // Verify data hasn't been tampered with
-        echo'<input type="hidden" name="video_noncename" id="video_noncename" value="'.wp_create_nonce( plugin_basename(__FILE__) ).'" />';
-        
+        // Verify data hasn't been tampered with ?>
+        <input type="hidden" name="video_noncename" id="video_noncename" value="<?php echo wp_create_nonce( plugin_basename(__FILE__) )?>" />
+
+        <?php
         $video_url = get_post_meta($post->ID, 'video_url', true);
         $video_id = get_post_meta($post->ID, 'video_id', true);
         $video_type = get_post_meta($post->ID, 'video_type', true);
 
+        // display rendered video in metabox
         if ($video_id != '' && $video_type != '') {
             $this->render_video($video_id, $video_type);
         }
@@ -79,17 +81,17 @@ class Video_Metabox {
 
     public function save_video_metabox( $post_id ) {    
         // Verify data hasn't been tampered with
-        if ( !wp_verify_nonce( $_POST["video_noncename"], plugin_basename(__FILE__) ))
+        if ( !wp_verify_nonce( $_POST['video_noncename'], plugin_basename(__FILE__) ))
             return $post_id;
 
-        // save url
         $data = esc_url_raw( $_POST['video_url']) ;
-            
-        if(get_post_meta($post_id, 'video_url') == "")
+           
+        // save url    
+        if(get_post_meta($post_id, 'video_url') == '')
         add_post_meta($post_id, 'video_url', $data, true);
         elseif($data != get_post_meta($post_id, 'video_url', true))
         update_post_meta($post_id, 'video_url', $data);
-        elseif($data == "")
+        elseif($data == '')
         delete_post_meta($post_id, 'video_url', get_post_meta($post_id, 'video_url', true));
 
         // srape url for video id & type
@@ -98,63 +100,63 @@ class Video_Metabox {
         // New, Update, and Delete
         $data = $video_details['video_id'];
             
-        if(get_post_meta($post_id, 'video_id') == "")
+        if(get_post_meta($post_id, 'video_id') == '')
         add_post_meta($post_id, 'video_id', $data, true);
         elseif($data != get_post_meta($post_id, 'video_id', true))
         update_post_meta($post_id, 'video_id', $data);
-        elseif($data == "")
+        elseif($data == '')
         delete_post_meta($post_id, 'video_id', get_post_meta($post_id, 'video_id', true));
         
         $data = $video_details['video_type'];
 
-        if(get_post_meta($post_id, 'video_type') == "")
+        if(get_post_meta($post_id, 'video_type') == '')
         add_post_meta($post_id, 'video_type', $data, true);
         elseif($data != get_post_meta($post_id, 'video_type', true))
         update_post_meta($post_id, 'video_type', $data);
-        elseif($data == "")
+        elseif($data == '')
         delete_post_meta($post_id, 'video_type', get_post_meta($post_id, 'video_type', true));  
     }
 
     protected function scrape_url($video_url) {
-
+        # validate user input for url structure
         if ( filter_var($video_url, FILTER_VALIDATE_URL) === FALSE )
             return false;
 
-        # get url query string and host
+        # get url query string, url path and host
         $parsed_url = parse_url( $video_url );
 
         switch ($parsed_url['host']) {
-            case "vimeo.com":
-            case "www.vimeo.com":
+            case 'vimeo.com':
+            case 'www.vimeo.com':
                 $video_details = array (
                     'video_id' => ltrim($parsed_url['path'],'/'),
                     'video_type' => 'vimeo',
                 );
-            break;
-            case "youtu.be":
+                break;
+            case 'youtu.be':
                 $video_details = array (
                     'video_id' => ltrim($parsed_url['path'],'/'),
                     'video_type' => 'youtube',
                 );
-            break;
-            case "youtube.com":
-            case "www.youtube.com":
+                break;
+            case 'youtube.com':
+            case 'www.youtube.com':
                 parse_str( $parsed_url['query'], $query_vars);
 
                 $video_details = array (
                     'video_id' => $query_vars['v'],
                     'video_type' => 'youtube',
                 );
-            break;
-            case "video.pbs.org":
-            case "video.klru.tv":
+                break;
+            case 'video.pbs.org':
+            case 'video.klru.tv':
                 $url_path = explode('/', rtrim($parsed_url['path'],'/') );
 
                 $video_details = array (
                     'video_id' => $url_path[count($url_path)-1],
                     'video_type' => 'pbs',
                 );
-            break;
+             break;
         }    
 
         return $video_details;
@@ -177,11 +179,11 @@ class Video_Metabox {
                 $embed = '';
                 break;  
         }
-        if ($video_id == '') return; // validate video, if no video id has been sent, don't render video
-        if ($return_rendered_video)
-            return $embed;
-        else
-            echo $embed;
+
+        // validate video, if no video id has been sent, don't render video
+        if ($video_id == '') return;
+        elseif ($return_rendered_video) return $embed;
+        else echo $embed;
     }
 }
 
