@@ -3,7 +3,7 @@
  * Plugin Name: Video Metabox
  * Plugin URI: https://github.com/jesseoverright/video-metabox
  * Description: Adds a video metabox plugin to your site.
- * Version: 1.1
+ * Version: 1.1.1
  * Author: Jesse Overright
  * Author URI: http://about.me/joverright
  * License: GPL2
@@ -130,13 +130,13 @@ class Video_Metabox {
                     'video_id' => ltrim($parsed_url['path'],'/'),
                     'video_type' => 'vimeo',
                 );
-            break;
+                break;
             case "youtu.be":
                 $video_details = array (
                     'video_id' => ltrim($parsed_url['path'],'/'),
                     'video_type' => 'youtube',
                 );
-            break;
+                break;
             case "youtube.com":
             case "www.youtube.com":
                 parse_str( $parsed_url['query'], $query_vars);
@@ -145,7 +145,7 @@ class Video_Metabox {
                     'video_id' => $query_vars['v'],
                     'video_type' => 'youtube',
                 );
-            break;
+                break;
             case "video.pbs.org":
             case "video.klru.tv":
                 $url_path = explode('/', rtrim($parsed_url['path'],'/') );
@@ -154,6 +154,16 @@ class Video_Metabox {
                     'video_id' => $url_path[count($url_path)-1],
                     'video_type' => 'pbs',
                 );
+                break;
+            case 'espn.go.com':
+                parse_str( $parsed_url['query'], $query_vars);
+
+                $video_details = array (
+                    'video_id' => str_replace('espn:','',$query_vars['id']),
+                    'video_type' => 'espn'
+                );
+                echo "yo";
+                break;
             break;
         }    
 
@@ -172,6 +182,9 @@ class Video_Metabox {
                 break;
             case 'pbs':
                 $embed = "<div class=\"video-metabox\"><iframe src=\"http://video.pbs.org/viralplayer/{$video_id}\" frameborder=\"0\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\" seamless></iframe></div>";
+                break;
+            case 'espn':
+                $embed = "<div class=\"video-metabox\"><script src=\"http://player.espn.com/player.js?playerBrandingId=4ef8000cbaf34c1687a7d9a26fe0e89e&adSetCode=91cDU6NuXTGKz3OdjOxFdAgJVtQcKJnI&pcode=1kNG061cgaoolOncv54OAO1ceO-I&externalId=espn:{$video_id}&thruParam_espn-ui[autoPlay]=false&thruParam_espn-ui[playRelatedExternally]=true\"></script></div>";
                 break;
             default:
                 $embed = '';

@@ -6,7 +6,7 @@
     margin-bottom: 5px;
 }
 
-.video-metabox iframe {
+.video-metabox iframe, .video-metabox object {
     position: absolute;
     top: 0;
     left: 0;
