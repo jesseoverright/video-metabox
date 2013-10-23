@@ -28,29 +28,40 @@
 if ( !class_exists('Video_Metabox') ) :
 
 class Video_Metabox {
+
+    private static $instance;
+
+    public static function get_instance() {
+        if ( !isset( self::$instance ) ) {
+            $class = __CLASS__;
+            self::$instance = new $class();
+        }
+
+        return self::$instance;
+    }
     
     public function __construct() {
         // add actions for creating and saving video metabox
         add_action('admin_init', array($this,'add_video_metabox') );
-        add_action('save_post', array($this, 'save_video_metabox') );
+        add_action('save_post', array($this, 'save') );
 
         // enqueue video metabox css
         add_action('init', array($this, 'add_video_metabox_css') );
 
         // hook into the_content and display the video when applicable.
-        add_filter( 'the_content' , array($this, 'video_metabox_content_filter') );
+        add_filter( 'the_content' , array($this, 'display_video') );
     }
 
     public function add_video_metabox () {
         add_meta_box( 'video-metabox', 'Video', array($this,'video_metabox'), 'post', 'normal', 'high');
-        wp_enqueue_style( 'video-metabox-css', plugins_url( 'video-metabox.css', __FILE__) );
+        $this->add_video_metabox_css();
     }
 
     public function add_video_metabox_css() {
         wp_enqueue_style( 'video-metabox-css', plugins_url( 'video-metabox.css', __FILE__) );
     }
 
-    public function video_metabox_content_filter( $content ) {
+    public function display_video( $content ) {
         global $post;
         if (get_post_meta($post->ID,'video_id',true) != '') {
             $content = $this->render_video(get_post_meta($post->ID,'video_id',true),get_post_meta($post->ID,'video_type',true),640) . $content;
@@ -79,7 +90,7 @@ class Video_Metabox {
         <?php
     }
 
-    public function save_video_metabox( $post_id ) {    
+    public function save( $post_id ) {    
         // Verify data hasn't been tampered with
         if ( !wp_verify_nonce( $_POST['video_noncename'], plugin_basename(__FILE__) ))
             return $post_id;
@@ -187,6 +198,6 @@ class Video_Metabox {
     }
 }
 
-$Video_Metabox = new Video_Metabox();
+Video_Metabox::get_instance();
 
 endif;
