@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: Video Metabox
- * Plugin URI: https://github.com/jesseoverright/video-metabox
+ * Plugin URI: http://wordpress.org/support/plugin/video-metabox
  * Description: Adds a video metabox plugin to your site.
  * Version: 1.1.1
  * Author: Jesse Overright
- * Author URI: http://about.me/joverright
+ * Author URI: http://jesseoverright.com
  * License: GPL2
  */
 
@@ -40,7 +40,7 @@ class Video_Metabox {
         return self::$instance;
     }
     
-    public function __construct() {
+    protected function __construct() {
         // add actions for creating and saving video metabox
         add_action('admin_init', array($this,'add_video_metabox') );
         add_action('save_post', array($this, 'save') );
