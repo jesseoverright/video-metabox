@@ -2,7 +2,7 @@
 Contributors: jesseover
 Tags: video, responsive, youtube, vimeo
 Requires: 3.0 or higher
-Compatible up to: 3.8
+Compatible up to: 3.9.1
 Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
