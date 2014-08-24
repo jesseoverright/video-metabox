@@ -1,13 +1,13 @@
 <?php
 
-interface Metabox {
+interface PostMeta {
 
     public function __construct( $key, $options);
 
     public function update($post_id, $data);
 }
 
-class WP_PostMetabox implements Metabox {
+class WP_PostMeta implements PostMeta {
 
     protected $key;
 
@@ -15,7 +15,7 @@ class WP_PostMetabox implements Metabox {
         $this->key = $meta_key;
     }
 
-    public function update($post_id, $data) {
+    public function update( $post_id, $data ) {
 
         if(get_post_meta($post_id, $this->key) == '') {
             add_post_meta($post_id, $this->key, $data, true);
@@ -31,15 +31,19 @@ class WP_PostMetabox implements Metabox {
 
 }
 
-class WP_TextMetabox extends WP_PostMetabox {
-
+class WP_TextMeta extends WP_PostMeta {
+    // add basic text validation
 }
 
-class WP_URLMetabox extends WP_PostMetabox {
-    // updates go here
+class WP_URLMeta extends WP_PostMeta {
+    // url validation goes here
 }
 
-class WP_SelectMetabox extends WP_PostMetabox {
+class WP_ArrayMeta extends WP_PostMeta {
+    // does word press serialize?
+}
+
+class WP_SelectMeta extends WP_PostMeta {
     protected $choices;
 
     public function __construct( $meta_key, $options = NULL ) {
@@ -61,28 +65,28 @@ class WP_SelectMetabox extends WP_PostMetabox {
 
 }
 
-// WP_TextareaMetabox
-// WP_MediaMetabox
+// WP_TextareaMeta
+// WP_MediaMeta
 
-class WP_PostMetaboxFactory {
+class WP_PostMetaFactory {
 
     public static function create( $key, $options ) {
 
         if ( $options['type'] ) $type = $options['type']; else $type = 'text';
     
-        switch ( $metabox_type ) {
+        switch ( $meta_type ) {
             case 'url':
-                            $PostMetabox = new WP_URLMetabox( $key, $options );
+                            $PostMeta = new WP_URLMeta( $key, $options );
                             break;
             case 'select':
-                            $PostMetabox = new WP_SelectMetabox( $key, $options );
+                            $PostMeta = new WP_SelectMeta( $key, $options );
                             break;
             case 'text':
             case 'int':
             default:
-                            $PostMetabox = new WP_TextMetabox( $key, $options );
+                            $PostMeta = new WP_TextMeta( $key, $options );
         }
 
-        return $PostMetabox;
+        return $PostMeta;
     }
 }
