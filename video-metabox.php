@@ -3,7 +3,7 @@
  * Plugin Name: Video Metabox
  * Plugin URI: http://wordpress.org/support/plugin/video-metabox
  * Description: Adds a video metabox plugin to your site.
- * Version: 1.1.2
+ * Version: 1.1.3
  * Author: Jesse Overright
  * Author URI: http://jesseoverright.com
  * License: GPL2
@@ -25,11 +25,17 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+include_once( dirname( __FILE__ ) . '/lib/class-wp-post-metabox.php' );
+
 if ( !class_exists('Video_Metabox') ) :
 
 class Video_Metabox {
 
     private static $instance;
+
+    protected $postmeta;
+
+    protected $supported_types = array ( 'vimeo', 'youtube', 'pbs' );
 
     public static function get_instance() {
         if ( !isset( self::$instance ) ) {
@@ -41,6 +47,12 @@ class Video_Metabox {
     }
     
     protected function __construct() {
+        $this->postmeta = array (
+            'video_url' => WP_PostMetaboxFactory::create( 'video_url', array( 'type' => 'url') ),
+            'video_id' => WP_PostMetaboxFactory::create( 'video_id', array( 'type' => 'int' ) ),
+            'video_type' => WP_PostMetaboxFactory::create( 'video_type', array( 'type' => 'select', 'choices' => $this->supported_types ) )
+        );
+
         // add actions for creating and saving video metabox
         add_action('admin_init', array($this,'add_video_metabox') );
         add_action('save_post', array($this, 'save') );
@@ -58,7 +70,7 @@ class Video_Metabox {
     }
 
     public function add_video_metabox_css() {
-        wp_enqueue_style( 'video-metabox-css', plugins_url( 'video-metabox.css', __FILE__) );
+        wp_enqueue_style( 'video-metabox-css', plugins_url( '/video-metabox/video-metabox.css' ) );
     }
 
     public function display_video( $content ) {
@@ -72,7 +84,8 @@ class Video_Metabox {
     public function video_metabox () {
         global $post;
 
-        // Verify data hasn't been tampered with ?>
+        // Verify data hasn't been tampered with
+        ?>
         <input type="hidden" name="video_noncename" id="video_noncename" value="<?php echo wp_create_nonce( plugin_basename(__FILE__) )?>" />
 
         <?php
@@ -96,36 +109,16 @@ class Video_Metabox {
             return $post_id;
 
         $data = esc_url_raw( $_POST['video_url']) ;
-           
-        // save url    
-        if(get_post_meta($post_id, 'video_url') == '')
-        add_post_meta($post_id, 'video_url', $data, true);
-        elseif($data != get_post_meta($post_id, 'video_url', true))
-        update_post_meta($post_id, 'video_url', $data);
-        elseif($data == '')
-        delete_post_meta($post_id, 'video_url', get_post_meta($post_id, 'video_url', true));
+
+        $this->postmeta['video_url']->update( $post_id, $data );
 
         // srape url for video id & type
         $video_details = $this->scrape_url($data);
-        
-        // New, Update, and Delete
-        $data = $video_details['video_id'];
-            
-        if(get_post_meta($post_id, 'video_id') == '')
-        add_post_meta($post_id, 'video_id', $data, true);
-        elseif($data != get_post_meta($post_id, 'video_id', true))
-        update_post_meta($post_id, 'video_id', $data);
-        elseif($data == '')
-        delete_post_meta($post_id, 'video_id', get_post_meta($post_id, 'video_id', true));
-        
-        $data = $video_details['video_type'];
 
-        if(get_post_meta($post_id, 'video_type') == '')
-        add_post_meta($post_id, 'video_type', $data, true);
-        elseif($data != get_post_meta($post_id, 'video_type', true))
-        update_post_meta($post_id, 'video_type', $data);
-        elseif($data == '')
-        delete_post_meta($post_id, 'video_type', get_post_meta($post_id, 'video_type', true));  
+        $this->postmeta['video_id']->update( $post_id, $video_details[ 'video_id' ] );
+
+        $this->postmeta['video_type']->update( $post_id, $video_details[ 'video_type' ] );
+      
     }
 
     protected function scrape_url($video_url) {
