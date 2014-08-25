@@ -4,26 +4,39 @@ interface PostMeta {
 
     public function __construct( $key, $options);
 
+    public function display_input( $post_id );
+
     public function update($post_id, $data);
 }
 
 class WP_PostMeta implements PostMeta {
 
     protected $key;
+    protected $label;
+
+    protected $input_type = 'text';
 
     public function __construct($meta_key, $options = NULL) {
         $this->key = $meta_key;
+        if ( $options['label'] ) $this->label = $options['label']; else $this->label = $this->key;
+    }
+
+    public function display_input( $post_id ) {
+        $data = get_post_meta( $post_id, $this->key, true );
+             
+        echo '<label>' . $this->label . '
+        <input type="' . $this->input_type . '" name="' . $this->key . '" value="' . $data . '" size="' . $this->size . '" /></label>';
     }
 
     public function update( $post_id, $data ) {
 
-        if(get_post_meta($post_id, $this->key) == '') {
+        if ( get_post_meta($post_id, $this->key) == '') {
             add_post_meta($post_id, $this->key, $data, true);
         }
-        elseif($data != get_post_meta($post_id, $this->key, true)) {
+        elseif ( $data != get_post_meta($post_id, $this->key, true) ) {
             update_post_meta($post_id, $this->key, $data);
         }
-        elseif($data == '') {
+        elseif ( $data == '' ) {
             delete_post_meta($post_id, $this->key, get_post_meta($post_id, $this->key, true));
         }
 
@@ -46,7 +59,7 @@ class WP_ArrayMeta extends WP_PostMeta {
 class WP_SelectMeta extends WP_PostMeta {
     protected $choices;
 
-    public function __construct( $meta_key, $options = NULL ) {
+    public function __construct( $meta_key, $options = array() ) {
         
         $this->choices = array();
         
@@ -70,7 +83,7 @@ class WP_SelectMeta extends WP_PostMeta {
 
 class WP_PostMetaFactory {
 
-    public static function create( $key, $options ) {
+    public static function create( $key, $options = array() ) {
 
         if ( $options['type'] ) $type = $options['type']; else $type = 'text';
     

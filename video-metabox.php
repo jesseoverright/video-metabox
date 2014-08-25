@@ -25,7 +25,8 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-include_once( dirname( __FILE__ ) . '/lib/class-wp-post-metabox.php' );
+include_once( dirname( __FILE__ ) . '/lib/wp-postmeta.php' );
+include_once( dirname( __FILE__ ) . '/lib/wp-metabox.php' );
 
 if ( !class_exists('Video_Metabox') ) :
 
@@ -48,9 +49,15 @@ class Video_Metabox {
     
     protected function __construct() {
         $this->postmeta = array (
-            'video_url' => WP_PostMetaboxFactory::create( 'video_url', array( 'type' => 'url') ),
-            'video_id' => WP_PostMetaboxFactory::create( 'video_id', array( 'type' => 'int' ) ),
-            'video_type' => WP_PostMetaboxFactory::create( 'video_type', array( 'type' => 'select', 'choices' => $this->supported_types ) )
+            'video_url' => WP_PostMetaFactory::create( 'video_url', array( 'type' => 'url') ),
+            'video_id' => WP_PostMetaFactory::create( 'video_id', array( 'type' => 'int' ) ),
+            'video_type' => WP_PostMetaFactory::create( 
+                'video_type', 
+                array( 
+                    'type' => 'select',
+                    'choices' => $this->supported_types
+                )
+            )
         );
 
         // add actions for creating and saving video metabox
@@ -194,3 +201,27 @@ class Video_Metabox {
 Video_Metabox::get_instance();
 
 endif;
+
+class Test_Metabox extends WP_Metabox {
+    public function __construct( $options ) {
+        $this->metadata['test'] = WP_PostMetaFactory::create( 'test' );
+        $this->size = '20';
+
+        add_filter( 'the_content' , array($this, 'display') );
+
+        parent::__construct( $options );
+    }
+
+    public function display( $content ) {
+        global $post;
+        if (get_post_meta($post->ID, 'test' ,true) != '') {
+            $content = get_post_meta($post->ID,'test',true) . $content;
+        }
+        return $content;
+    }
+}
+
+$test = new Test_Metabox( array(
+    'name' => 'test',
+    'label' => 'Test',
+));
