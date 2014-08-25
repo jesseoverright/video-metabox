@@ -24,8 +24,8 @@ class WP_PostMeta implements PostMeta {
     public function display_input( $post_id ) {
         $data = get_post_meta( $post_id, $this->key, true );
              
-        echo '<label>' . $this->label . '
-        <input type="' . $this->input_type . '" name="' . $this->key . '" value="' . $data . '" size="' . $this->size . '" /></label>';
+        echo '<label for="' . $this->key . '">' . $this->label . '</label>
+        <input type="' . $this->input_type . '" id ="'. $this->key . '" name="' . $this->key . '" value="' . $data . '" size="' . $this->size . '" />';
     }
 
     public function update( $post_id, $data ) {

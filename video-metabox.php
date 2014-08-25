@@ -205,6 +205,7 @@ endif;
 class Test_Metabox extends WP_Metabox {
     public function __construct( $options ) {
         $this->metadata['test'] = WP_PostMetaFactory::create( 'test' );
+        $this->metadata['another'] = WP_PostMetaFactory::create( 'another' );
         $this->size = '20';
 
         add_filter( 'the_content' , array($this, 'display') );
