@@ -30,11 +30,9 @@ include_once( dirname( __FILE__ ) . '/lib/wp-metabox.php' );
 
 if ( !class_exists('Video_Metabox') ) :
 
-class Video_Metabox {
+class Video_Metabox extends WP_Metabox {
 
     private static $instance;
-
-    protected $postmeta;
 
     protected $supported_types = array ( 'vimeo', 'youtube', 'pbs' );
 
@@ -47,9 +45,23 @@ class Video_Metabox {
         return self::$instance;
     }
     
-    protected function __construct() {
-        $this->postmeta = array (
-            'video_url' => WP_PostMetaFactory::create( 'video_url', array( 'type' => 'url') ),
+    public function __construct( $options = array() ) {
+
+        parent::__construct( array(
+            'name' => 'video-metabox',
+            'label' => 'Video',
+            'posttype' => 'post',
+            )
+        );
+
+        $this->metadata = array (
+            'video_url' => WP_PostMetaFactory::create(
+                'video_url',
+                array(
+                    'type' => 'url',
+                    'label' => 'Video URL'
+                )
+            ),
             'video_id' => WP_PostMetaFactory::create( 'video_id', array( 'type' => 'int' ) ),
             'video_type' => WP_PostMetaFactory::create( 
                 'video_type', 
@@ -60,10 +72,6 @@ class Video_Metabox {
             )
         );
 
-        // add actions for creating and saving video metabox
-        add_action('admin_init', array($this,'add_video_metabox') );
-        add_action('save_post', array($this, 'save') );
-
         // enqueue video metabox css
         add_action('init', array($this, 'add_video_metabox_css') );
 
@@ -71,8 +79,10 @@ class Video_Metabox {
         add_filter( 'the_content' , array($this, 'display_video') );
     }
 
-    public function add_video_metabox () {
-        add_meta_box( 'video-metabox', 'Video', array($this,'video_metabox'), 'post', 'normal', 'high');
+    public function add_metabox () {
+
+        parent::add_metabox();
+
         $this->add_video_metabox_css();
     }
 
@@ -88,15 +98,11 @@ class Video_Metabox {
         return $content;
     }
 
-    public function video_metabox () {
+    public function display_metabox () {
         global $post;
 
-        // Verify data hasn't been tampered with
-        ?>
-        <input type="hidden" name="video_noncename" id="video_noncename" value="<?php echo wp_create_nonce( plugin_basename(__FILE__) )?>" />
+        echo '<input type="hidden" name="' . $this->name . '_nonce" id="' . $this->name . '_nonce" value="' . wp_create_nonce( $this->name . '_save' ) . '" />';
 
-        <?php
-        $video_url = get_post_meta($post->ID, 'video_url', true);
         $video_id = get_post_meta($post->ID, 'video_id', true);
         $video_type = get_post_meta($post->ID, 'video_type', true);
 
@@ -104,27 +110,23 @@ class Video_Metabox {
         if ($video_id != '' && $video_type != '') {
             $this->render_video($video_id, $video_type);
         }
-        ?>
-        <label>Video URL:
-        <input type="url" name="video_url" value="<?php echo esc_url($video_url); ?>" size="40" /></label>
-        <?php
+
+        $this->metadata['video_url']->display_input( $post->ID );
     }
 
     public function save( $post_id ) {    
-        // Verify data hasn't been tampered with
-        if ( !wp_verify_nonce( $_POST['video_noncename'], plugin_basename(__FILE__) ))
+        
+        if ( !wp_verify_nonce( $_POST[ $this->name . '_nonce'], $this->name . '_save' ) )
             return $post_id;
 
-        $data = esc_url_raw( $_POST['video_url']) ;
-
-        $this->postmeta['video_url']->update( $post_id, $data );
+        $this->metadata['video_url']->update( $post_id, $_POST['video_url'] );
 
         // srape url for video id & type
-        $video_details = $this->scrape_url($data);
+        $video_details = $this->scrape_url( get_post_meta( $post_id, 'video_url', true ) );
 
-        $this->postmeta['video_id']->update( $post_id, $video_details[ 'video_id' ] );
+        $this->metadata['video_id']->update( $post_id, $video_details[ 'video_id' ] );
 
-        $this->postmeta['video_type']->update( $post_id, $video_details[ 'video_type' ] );
+        $this->metadata['video_type']->update( $post_id, $video_details[ 'video_type' ] );
       
     }
 
@@ -201,28 +203,3 @@ class Video_Metabox {
 Video_Metabox::get_instance();
 
 endif;
-
-class Test_Metabox extends WP_Metabox {
-    public function __construct( $options ) {
-        $this->metadata['test'] = WP_PostMetaFactory::create( 'test' );
-        $this->metadata['another'] = WP_PostMetaFactory::create( 'another' );
-        $this->size = '20';
-
-        add_filter( 'the_content' , array($this, 'display') );
-
-        parent::__construct( $options );
-    }
-
-    public function display( $content ) {
-        global $post;
-        if (get_post_meta($post->ID, 'test' ,true) != '') {
-            $content = get_post_meta($post->ID,'test',true) . $content;
-        }
-        return $content;
-    }
-}
-
-$test = new Test_Metabox( array(
-    'name' => 'test',
-    'label' => 'Test',
-));

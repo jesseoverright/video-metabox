@@ -13,16 +13,17 @@ class WP_PostMeta implements PostMeta {
 
     protected $key;
     protected $label;
+    protected $size = 40;
 
     protected $input_type = 'text';
 
-    public function __construct($meta_key, $options = NULL) {
-        $this->key = $meta_key;
+    public function __construct($key, $options = array() ) {
+        $this->key = $key;
         if ( $options['label'] ) $this->label = $options['label']; else $this->label = $this->key;
     }
 
-    public function display_input( $post_id ) {
-        $data = get_post_meta( $post_id, $this->key, true );
+    public function display_input( $post_id, $data = false ) {
+        if ( ! $data ) $data = get_post_meta( $post_id, $this->key, true );
              
         echo '<label for="' . $this->key . '">' . $this->label . '</label>
         <input type="' . $this->input_type . '" id ="'. $this->key . '" name="' . $this->key . '" value="' . $data . '" size="' . $this->size . '" />';
@@ -48,8 +49,22 @@ class WP_TextMeta extends WP_PostMeta {
     // add basic text validation
 }
 
-class WP_URLMeta extends WP_PostMeta {
-    // url validation goes here
+class WP_URLMeta extends WP_TextMeta {
+    public function __construct( $key, $options = array() ) {
+        parent::__construct( $key, $options );
+    }
+
+    public function display_input( $post_id ) {
+        $data = esc_url( get_post_meta( $post_id, $this->key, true ) );
+
+        parent::display_input( $post_id, $data );
+    }
+
+    public function update( $post_id, $data ) {
+        $data = esc_url_raw( $_POST[ $this->key ] );
+
+        parent::update( $post_id, $data );
+    }
 }
 
 class WP_ArrayMeta extends WP_PostMeta {
@@ -59,13 +74,13 @@ class WP_ArrayMeta extends WP_PostMeta {
 class WP_SelectMeta extends WP_PostMeta {
     protected $choices;
 
-    public function __construct( $meta_key, $options = array() ) {
+    public function __construct( $key, $options = array() ) {
         
         $this->choices = array();
         
         if ( $options['choices'] ) $this->choices = $options['choices'];
 
-        parent::__construct( $meta_key, $options );
+        parent::__construct( $key, $options );
 
     }
 
