@@ -20,13 +20,16 @@ class WP_PostMeta implements PostMeta {
     public function __construct($key, $options = array() ) {
         $this->key = $key;
         if ( $options['label'] ) $this->label = $options['label']; else $this->label = $this->key;
+        if ( $options['label'] == 'none' ) $this->label = '';
     }
 
     public function display_input( $post_id, $data = false ) {
         if ( ! $data ) $data = get_post_meta( $post_id, $this->key, true );
-             
-        echo '<label for="' . $this->key . '">' . $this->label . '</label>
-        <input type="' . $this->input_type . '" id ="'. $this->key . '" name="' . $this->key . '" value="' . $data . '" size="' . $this->size . '" />';
+        
+        if ( $this->label ) {
+            echo '<label for="' . $this->key . '">' . $this->label . '</label>';
+        }
+        echo '<input type="' . $this->input_type . '" id ="'. $this->key . '" name="' . $this->key . '" value="' . $data . '" size="' . $this->size . '" style="width: 100%" >';
     }
 
     public function update( $post_id, $data ) {

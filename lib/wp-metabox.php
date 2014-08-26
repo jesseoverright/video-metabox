@@ -14,6 +14,7 @@ class WP_Metabox {
     protected $name;
     protected $metadata;
     protected $label;
+    protected $posttype;
 
 
     public function __construct( $options = array() ) {
@@ -43,7 +44,11 @@ class WP_Metabox {
 
     public function save( $post_id ) {    
         if ( !wp_verify_nonce( $_POST[ $this->name . '_nonce'], $this->name . '_save' ) )
-            return $post_id;
+            return false;
+
+        if ( !current_user_can( 'edit_post', $post_id )) {
+            return false;
+        }
 
         foreach ( $this->metadata as $key => $meta ) {
             $meta->update( $post_id, $_POST[ $key ] );
@@ -51,4 +56,12 @@ class WP_Metabox {
       
     }
     
+}
+
+class WP_SimpleMetabox extends WP_Metabox {
+    public function __construct( $options ) {
+        parent::__construct( $options );
+        $this->metadata[ $this->name ] = WP_PostMetaFactory::create( $this->name, array( 'label' => 'none' ) );
+    }
+
 }
