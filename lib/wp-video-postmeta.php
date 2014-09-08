@@ -13,7 +13,10 @@ if ( ! interface_exists( 'PostMeta' ) ) {
 
 if ( ! interface_exists( 'PostMetaFactory' ) ) {
     interface PostMetaFactory {
-        public static function create( $key, $options = array() );
+
+        public static function get_instance();
+
+        public function create( $key, $options = array() );
     }
 }
 
@@ -58,7 +61,18 @@ class WP_VideoMeta implements PostMeta {
 
 class Video_PostMetaFactory implements PostMetaFactory {
 
-    public static function create( $key, $options = array() ) {
+    private static $instance;
+
+    public static function get_instance() {
+        if ( !isset( self::$instance ) ) {
+            $class = __CLASS__;
+            self::$instance = new $class();
+        }
+
+        return self::$instance;
+    }
+
+    public function create( $key, $options = array() ) {
 
         if ( $options['type'] ) $type = $options['type']; else $type = 'text';
     
