@@ -2,8 +2,8 @@
 Contributors: jesseover
 Tags: video, responsive, youtube, vimeo
 Requires: 3.0 or higher
-Compatible up to: 3.9.1
-Stable tag: 1.1.2
+Compatible up to: 4.0
+Stable tag: 1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,7 +21,7 @@ Video Metabox takes the guess work out of adding a video to your blog. **All you
 
 OR 
 
-1. Unzip `video-metabox.1.1.2.zip` to the `/wp-content/plugins/` directory
+1. Unzip `video-metabox.1.2.zip` to the `/wp-content/plugins/` directory
 1. Activate `Video Metabox`  through the 'Plugins' menu in WordPress
 
 == Screenshots ==
@@ -30,6 +30,9 @@ OR
 2. Video metabox will automatically create the embed code and add your video to the top of the post. 
 
 == Changelog ==
+
+= 1.2 =
+* Refactored for improved performance
 
 = 1.1.2 =
 * Added uninstall functionality for metadata

@@ -63,6 +63,9 @@ class Video_PostMetaFactory implements PostMetaFactory {
 
     private static $instance;
 
+    protected function __construct() {
+    }
+
     public static function get_instance() {
         if ( !isset( self::$instance ) ) {
             $class = __CLASS__;
