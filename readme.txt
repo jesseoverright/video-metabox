@@ -21,7 +21,7 @@ Video Metabox takes the guess work out of adding a video to your blog. **All you
 
 OR 
 
-1. Unzip `video-metabox.1.2.1.zip` to the `/wp-content/plugins/` directory
+1. Unzip `video-metabox.1.2.2.zip` to the `/wp-content/plugins/` directory
 1. Activate `Video Metabox`  through the 'Plugins' menu in WordPress
 
 == Screenshots ==
@@ -30,6 +30,9 @@ OR
 2. Video metabox will automatically create the embed code and add your video to the top of the post. 
 
 == Changelog ==
+
+= 1.2.2 = 
+* Updated metabox name to key
 
 = 1.2.1 =
 * Updated folder structure to WordPress plugin standard
