@@ -5,7 +5,7 @@ if ( ! interface_exists( 'PostMeta' ) ) {
 
         public function __construct( $key, $options = array() );
 
-        public function display_input( $post_id );
+        public function display_postmeta( $post_id );
 
         public function update($post_id, $data);
     }
@@ -34,13 +34,13 @@ class WP_VideoMeta implements PostMeta {
         if ( $options['label'] == 'none' ) $this->label = '';
     }
 
-    public function display_input( $post_id, $data = false ) {
+    public function display_postmeta( $post_id, $data = false ) {
         if ( ! $data ) $data = get_post_meta( $post_id, $this->key, true );
         
         if ( $this->label ) {
             echo '<label for="' . $this->key . '">' . $this->label . '</label>';
         }
-        echo '<input type="' . $this->input_type . '" id ="'. $this->key . '" name="' . $this->key . '" value="' . $data . '" size="' . $this->size . '" style="width: 100%" >';
+        echo '<input type="' . $this->input_type . '" id ="'. $this->key . '" name="' . $this->key . '" value="' . $data . '" size="' . $this->size . '" class="widefat" >';
     }
 
     public function update( $post_id, $data ) {

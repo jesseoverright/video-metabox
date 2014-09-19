@@ -31,6 +31,9 @@ OR
 
 == Changelog ==
 
+= 1.2.3 =
+* Updated to support latest wp-metabox
+
 = 1.2.2 = 
 * Updated metabox name to key
 

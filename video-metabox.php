@@ -3,7 +3,7 @@
  * Plugin Name: Video Metabox
  * Plugin URI: http://wordpress.org/support/plugin/video-metabox
  * Description: Adds a video metabox plugin to your site.
- * Version: 1.2.2
+ * Version: 1.2.3
  * Author: Jesse Overright
  * Author URI: http://jesseoverright.com
  * License: GPL2
@@ -42,7 +42,11 @@ function video_metabox_init() {
         private static $instance;
         protected $_post_meta_factory;
 
-        protected $supported_types = array ( 'vimeo', 'youtube', 'pbs' );
+        protected $supported_types = array (
+            'vimeo' => 'vimeo',
+            'youtube' => 'youtube',
+            'pbs' => 'pbs'
+        );
 
         public static function get_instance() {
             if ( !isset( self::$instance ) ) {
@@ -111,7 +115,7 @@ function video_metabox_init() {
         public function display_metabox () {
             global $post;
 
-            echo '<input type="hidden" name="' . $this->name . '_nonce" id="' . $this->name . '_nonce" value="' . wp_create_nonce( $this->name . '_save' ) . '" />';
+            echo '<input type="hidden" name="' . $this->key . '_nonce" id="' . $this->key . '_nonce" value="' . wp_create_nonce( $this->key . '_save' ) . '" />';
 
             $video_id = get_post_meta($post->ID, 'video_id', true);
             $video_type = get_post_meta($post->ID, 'video_type', true);
@@ -121,12 +125,12 @@ function video_metabox_init() {
                 $this->render_video($video_id, $video_type);
             }
 
-            $this->metadata['video_url']->display_input( $post->ID );
+            $this->metadata['video_url']->display_postmeta( $post->ID );
         }
 
         public function save( $post_id ) {    
             
-            if ( !wp_verify_nonce( $_POST[ $this->name . '_nonce'], $this->name . '_save' ) )
+            if ( !wp_verify_nonce( $_POST[ $this->key . '_nonce'], $this->key . '_save' ) )
                 return $post_id;
 
             $this->metadata['video_url']->update( $post_id, $_POST['video_url'] );
