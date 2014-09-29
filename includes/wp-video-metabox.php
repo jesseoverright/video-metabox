@@ -2,7 +2,7 @@
 
 if ( ! interface_exists( 'Metabox' ) ) {
     interface Metabox {
-        public function __construct( $key, PostMetaFactory $post_meta_factory, $options = array() );
+        public function __construct( $key, PostMetaFactory $post_meta_factory, $args = array() );
 
         public function add_metabox();
 
@@ -20,12 +20,12 @@ class WP_VideoMetabox implements Metabox {
     protected $_post_meta_factory;
 
 
-    public function __construct( $key, PostMetaFactory $post_meta_factory, $options = array() ) {
+    public function __construct( $key, PostMetaFactory $post_meta_factory, $args = array() ) {
         $this->_post_meta_factory = $post_meta_factory;
 
         $this->key = $key;
-        $this->label = $options['label'];
-        if ( $options['posttype'] ) $this->posttype = $options['posttype']; else $this->posttype = 'post';
+        $this->label = $args['label'];
+        if ( $args['posttype'] ) $this->posttype = $args['posttype']; else $this->posttype = 'post';
 
         add_action( 'admin_init', array( $this, 'add_metabox' ) );
         add_action( 'save_post', array( $this, 'save' ) );

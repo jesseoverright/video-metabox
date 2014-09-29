@@ -3,7 +3,7 @@
 if ( ! interface_exists( 'PostMeta' ) ) {
     interface PostMeta {
 
-        public function __construct( $key, $options = array() );
+        public function __construct( $key, $args = array() );
 
         public function display_postmeta( $post_id );
 
@@ -16,7 +16,7 @@ if ( ! interface_exists( 'PostMetaFactory' ) ) {
 
         public static function get_instance();
 
-        public function create( $key, $options = array() );
+        public function create( $key, $args = array() );
     }
 }
 
@@ -28,10 +28,10 @@ class WP_VideoMeta implements PostMeta {
 
     protected $input_type = 'text';
 
-    public function __construct($key, $options = array() ) {
+    public function __construct($key, $args = array() ) {
         $this->key = $key;
-        if ( $options['label'] ) $this->label = $options['label']; else $this->label = $this->key;
-        if ( $options['label'] == 'none' ) $this->label = '';
+        if ( $args['label'] ) $this->label = $args['label']; else $this->label = $this->key;
+        if ( $args['label'] == 'none' ) $this->label = '';
     }
 
     public function display_postmeta( $post_id, $data = false ) {
@@ -75,12 +75,12 @@ class Video_PostMetaFactory implements PostMetaFactory {
         return self::$instance;
     }
 
-    public function create( $key, $options = array() ) {
+    public function create( $key, $args = array() ) {
 
-        if ( $options['type'] ) $type = $options['type']; else $type = 'text';
+        if ( $args['type'] ) $type = $args['type']; else $type = 'text';
     
         switch ( $meta_type ) {
-            default:  $PostMeta = new WP_VideoMeta( $key, $options );
+            default:  $PostMeta = new WP_VideoMeta( $key, $args );
         }
 
         return $PostMeta;

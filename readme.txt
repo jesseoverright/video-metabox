@@ -31,6 +31,9 @@ OR
 
 == Changelog ==
 
+= 1.2.4 =
+* Updated to WordPress standards
+
 = 1.2.3 =
 * Updated to support latest wp-metabox
 

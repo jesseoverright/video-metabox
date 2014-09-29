@@ -3,7 +3,7 @@
  * Plugin Name: Video Metabox
  * Plugin URI: http://wordpress.org/support/plugin/video-metabox
  * Description: Adds a video metabox plugin to your site.
- * Version: 1.2.3
+ * Version: 1.2.4
  * Author: Jesse Overright
  * Author URI: http://jesseoverright.com
  * License: GPL2
@@ -61,7 +61,7 @@ function video_metabox_init() {
             return self::$instance;
         }
         
-        public function __construct( $key, PostMetaFactory $post_meta_factory, $options = array() ) {
+        public function __construct( $key, PostMetaFactory $post_meta_factory, $args = array() ) {
             parent::__construct( $key, $post_meta_factory, array(
                 'label' => 'Video',
                 'posttype' => 'post',
