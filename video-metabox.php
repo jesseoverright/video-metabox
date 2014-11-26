@@ -63,7 +63,7 @@ function video_metabox_init() {
         
         public function __construct( $key, PostMetaFactory $post_meta_factory, $args = array() ) {
             parent::__construct( $key, $post_meta_factory, array(
-                'label' => 'Video',
+                'label' => __( 'Video', 'video-metabox' ),
                 'posttype' => 'post',
                 )
             );
@@ -73,7 +73,8 @@ function video_metabox_init() {
                     'video_url',
                     array(
                         'type' => 'url',
-                        'label' => 'Video URL'
+                        'label' => __( 'Video URL', 'video-metabox' ),
+                        'placeholder' => __('ex. https://www.youtube.com/watch?v=X8zTSDFiI24', 'video-metabox' )
                     )
                 ),
                 'video_id' => $this->_post_meta_factory->create( 'video_id', array( 'type' => 'int' ) ),
