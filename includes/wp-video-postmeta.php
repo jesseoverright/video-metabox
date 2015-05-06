@@ -30,13 +30,13 @@ class WP_VideoMeta implements PostMeta {
 
     public function __construct($key, $args = array() ) {
         $this->key = $key;
-        if ( $args['label'] ) $this->label = $args['label']; else $this->label = $this->key;
-        if ( $args['label'] == 'none' ) $this->label = '';
+        if ( !empty($args['label']) ) $this->label = $args['label']; else $this->label = $this->key;
+        if ( !empty($args['label']) && $args['label'] == 'none' ) $this->label = '';
     }
 
     public function display_postmeta( $post_id, $data = false ) {
         if ( ! $data ) $data = get_post_meta( $post_id, $this->key, true );
-        
+
         if ( $this->label ) {
             echo '<label for="' . $this->key . '">' . $this->label . '</label>';
         }
@@ -78,7 +78,7 @@ class Video_PostMetaFactory implements PostMetaFactory {
     public function create( $key, $args = array() ) {
 
         if ( $args['type'] ) $type = $args['type']; else $type = 'text';
-    
+
         switch ( $meta_type ) {
             default:  $PostMeta = new WP_VideoMeta( $key, $args );
         }
