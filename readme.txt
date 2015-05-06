@@ -1,9 +1,9 @@
 === Video Metabox ===
-Contributors: jesseover
+Contributors: jesseover, baden03
 Tags: video, responsive, youtube, vimeo
-Requires: 3.0 or higher
-Compatible up to: 4.0
-Stable tag: 1.2.1
+Requires: 3.9 or higher
+Compatible up to: 4.2
+Stable tag: 1.2.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,6 +30,9 @@ OR
 2. Video Metabox will automatically create the embed code and add your video to the top of the post. 
 
 == Changelog ==
+
+= 1.2.5 =
+* Fixed php notice errors for Undefined index
 
 = 1.2.4 =
 * Updated to WordPress standards

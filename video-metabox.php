@@ -3,16 +3,16 @@
  * Plugin Name: Video Metabox
  * Plugin URI: http://wordpress.org/support/plugin/video-metabox
  * Description: Adds a video metabox to blog posts and pages.
- * Version: 1.2.4
+ * Version: 1.2.5
  * Author: Jesse Overright
  * Author URI: http://jesseoverright.com
  * License: GPL2
  */
 
-/*  Copyright 2013-2014  Jesse Overright  (email : jesseoverright@gmail.com)
+/*  Copyright 2013-2015  Jesse Overright  (email : jesseoverright@gmail.com)
 
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License, version 2, as 
+    it under the terms of the GNU General Public License, version 2, as
     published by the Free Software Foundation.
 
     This program is distributed in the hope that it will be useful,
@@ -34,7 +34,7 @@ function video_metabox_init() {
     if ( ! function_exists( 'WP_Metabox' ) ) {
         include_once( dirname( __FILE__ ) . '/includes/wp-video-postmeta.php' );
     }
-    
+
     if ( !class_exists('Video_Metabox') ) :
 
     class Video_Metabox extends WP_VideoMetabox {
@@ -60,7 +60,7 @@ function video_metabox_init() {
 
             return self::$instance;
         }
-        
+
         public function __construct( $key, PostMetaFactory $post_meta_factory, $args = array() ) {
             parent::__construct( $key, $post_meta_factory, array(
                 'label' => __( 'Video', 'video-metabox' ),
@@ -78,9 +78,9 @@ function video_metabox_init() {
                     )
                 ),
                 'video_id' => $this->_post_meta_factory->create( 'video_id', array( 'type' => 'int' ) ),
-                'video_type' => $this->_post_meta_factory->create( 
-                    'video_type', 
-                    array( 
+                'video_type' => $this->_post_meta_factory->create(
+                    'video_type',
+                    array(
                         'type' => 'select',
                         'choices' => $this->supported_types
                     )
@@ -129,8 +129,8 @@ function video_metabox_init() {
             $this->metadata['video_url']->display_postmeta( $post->ID );
         }
 
-        public function save( $post_id ) {    
-            
+        public function save( $post_id ) {
+
             if ( !wp_verify_nonce( $_POST[ $this->key . '_nonce'], $this->key . '_save' ) )
                 return $post_id;
 
@@ -142,7 +142,7 @@ function video_metabox_init() {
             $this->metadata['video_id']->update( $post_id, $video_details[ 'video_id' ] );
 
             $this->metadata['video_type']->update( $post_id, $video_details[ 'video_type' ] );
-          
+
         }
 
         protected function scrape_url($video_url) {
@@ -185,14 +185,14 @@ function video_metabox_init() {
                         'video_type' => 'pbs',
                     );
                  break;
-            }    
+            }
 
             return $video_details;
 
         }
 
         protected function render_video($video_id, $video_type, $return_rendered_video = false) {
-            
+
             switch ($video_type) {
                 case 'vimeo':
                     $embed = "<div class=\"video-metabox\"><iframe src=\"http://player.vimeo.com/video/{$video_id}?title=0&byline=0&portrait=0&color=ffffff\" frameborder=\"0\" webkitAllowFullScreen allowFullScreen></iframe></div>";
@@ -205,7 +205,7 @@ function video_metabox_init() {
                     break;
                 default:
                     $embed = '';
-                    break;  
+                    break;
             }
 
             // validate video, if no video id has been sent, don't render video
